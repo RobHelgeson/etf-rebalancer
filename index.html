@@ -8,6 +8,12 @@
     <meta name="robots" content="noindex" />
     <title>Monthly Rebalance</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%232a78d6'/%3E%3C/svg%3E" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Rebalance" />
     <link rel="stylesheet" href="styles.css" />
     <script type="module" src="app.js"></script>
   </head>
@@ -18,18 +24,9 @@
         <p class="muted">Enter today's numbers. Get the orders that put you back on target.</p>
       </header>
 
-      <section id="setup-link" class="card notice" hidden>
-        <h2>Apply settings from this link?</h2>
-        <p id="setup-link-summary"></p>
-        <div class="row">
-          <button type="button" id="setup-apply" class="primary">Apply</button>
-          <button type="button" id="setup-ignore">Ignore</button>
-        </div>
-      </section>
-
       <section id="needs-setup" class="card notice" hidden>
         <h2>First, set up your funds</h2>
-        <p>Open <strong>Settings</strong> at the bottom of the page, or use the setup link you were sent.</p>
+        <p>Fill in <strong>Settings</strong> below and save. They stay on this device, so if you add this page to your home screen, open it from there and set it up there.</p>
       </section>
 
       <form id="inputs" novalidate>
@@ -136,11 +133,8 @@
           <div id="s-funds"></div>
           <button type="button" id="s-add-fund">Add fund</button>
           <p id="settings-errors" class="error" role="alert"></p>
-          <div class="row">
-            <button type="submit" class="primary">Save settings</button>
-            <button type="button" id="s-share">Copy setup link</button>
-          </div>
-          <p class="hint">Settings and share counts are saved only on this device. Balances and quotes are never saved. The setup link carries settings only, after the <code>#</code>, which browsers do not send to the server.</p>
+          <button type="submit" class="primary big">Save settings</button>
+          <p class="hint">Settings and share counts are saved only on this device. Balances and quotes are never saved. A home-screen app keeps its own storage, separate from the browser.</p>
           <button type="button" id="s-clear" class="danger">Erase everything saved on this device</button>
         </form>
       </details>

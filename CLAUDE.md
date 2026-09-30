@@ -4,7 +4,7 @@ A static, phone-first page that turns a month's balances and quotes into the ord
 
 ## This repo is public
 
-Nothing that identifies the owner or the person using the app goes in any file, commit message, branch name, issue or PR: no names, no brokerage or bank names, no fund tickers tied to a real account, no balances, share counts, prices from a real account, account numbers, or emails. Tickers and targets are configured at runtime (Settings or a setup link), never hard-coded. Test and example figures are invented.
+Nothing that identifies the owner or the person using the app goes in any file, commit message, branch name, issue or PR: no names, no brokerage or bank names, no fund tickers tied to a real account, no balances, share counts, prices from a real account, account numbers, or emails. Tickers and targets are entered at runtime in Settings and kept in localStorage, never hard-coded. Test and example figures are invented.
 
 `scripts/privacy-check.sh` enforces this against a gitignored `.private-terms` list, via the hooks in `.githooks/`. After a fresh clone:
 
@@ -18,7 +18,8 @@ and recreate `.private-terms` (one term per line). Never commit it, never paste 
 ## Layout
 
 - `rebalance.js` — pure planning math, integer cents throughout. No DOM. All rules live here.
-- `app.js` — UI: rendering, input parsing, localStorage, setup links.
+- `app.js` — UI: rendering, input parsing, localStorage.
+- `manifest.webmanifest`, `icons/` — home-screen install. New site files must also be added to the copy step in the Pages workflow.
 - `index.html`, `styles.css` — single page, one column, 16px inputs (iOS zoom), light and dark.
 - `test/rebalance.test.js` — `node --test`.
 
@@ -33,7 +34,7 @@ Changing any rule is a product decision; confirm with the repo owner first.
 
 ## Storage
 
-Saved on the device: settings and the last share counts (with an as-of date, shown as a prefill the user must confirm). Never saved: cash, money market value, bids, asks. Setup links carry settings only, in the URL fragment.
+Saved in localStorage: settings and the last share counts (with an as-of date, shown as a prefill the user must confirm). Never saved: cash, money market value, bids, asks. The app is meant to be added to an iPhone home screen (`manifest.webmanifest`, `apple-mobile-web-app-capable`); a home-screen web app has its own storage container separate from Safari, so settings are entered inside the installed app. Don't reintroduce URL-based settings for that reason.
 
 ## Commands
 

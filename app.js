@@ -446,50 +446,15 @@ function onSaveSettings(event) {
   toast('Settings saved');
 }
 
-const encode = (obj) => btoa(unescape(encodeURIComponent(JSON.stringify(obj)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-const decode = (s) => JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/')))));
-
-function checkSetupLink() {
-  const match = location.hash.match(/^#setup=([A-Za-z0-9_-]+)$/);
-  if (!match) return;
-  history.replaceState(null, '', location.pathname + location.search);
-  let incoming;
-  try {
-    incoming = normalizeSettings(decode(match[1]));
-  } catch {
-    toast('That setup link is damaged.');
-    return;
-  }
-  if (settingsErrors(incoming).length) {
-    toast('That setup link has invalid settings.');
-    return;
-  }
-  $('setup-link-summary').textContent = `${incoming.funds.map((f) => `${f.ticker} ${f.target}%`).join(', ')}; ${incoming.mmName} buffer ${usd.format(incoming.buffer)}. This replaces your current settings. Share counts are kept.`;
-  $('setup-link').hidden = false;
-  $('setup-apply').onclick = () => {
-    applySettings(incoming);
-    $('setup-link').hidden = true;
-    toast('Settings applied');
-  };
-  $('setup-ignore').onclick = () => ($('setup-link').hidden = true);
-}
-
 function init() {
   renderSettings();
   renderInputs();
-  checkSetupLink();
 
   $('inputs').addEventListener('submit', onBuild);
   $('settings-form').addEventListener('submit', onSaveSettings);
   $('s-add-fund').addEventListener('click', () => {
     if (document.querySelectorAll('.fund-row').length >= MAX_FUNDS) return toast(`Up to ${MAX_FUNDS} funds.`);
     $('s-funds').append(fundRow());
-  });
-  $('s-share').addEventListener('click', () => {
-    const current = readSettings();
-    const errors = settingsErrors(current);
-    if (errors.length) return ($('settings-errors').textContent = errors.join(' '));
-    copy(`${location.origin}${location.pathname}#setup=${encode(current)}`);
   });
   $('s-clear').addEventListener('click', () => {
     if (!confirm('Erase saved settings and share counts from this device?')) return;
