@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)" />
+    <meta name="robots" content="noindex" />
+    <title>Monthly Rebalance</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%232a78d6'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Monthly Rebalance</h1>
+        <p class="muted">Enter today's numbers. Get the orders that put you back on target.</p>
+      </header>
+
+      <section id="setup-link" class="card notice" hidden>
+        <h2>Apply settings from this link?</h2>
+        <p id="setup-link-summary"></p>
+        <div class="row">
+          <button type="button" id="setup-apply" class="primary">Apply</button>
+          <button type="button" id="setup-ignore">Ignore</button>
+        </div>
+      </section>
+
+      <section id="needs-setup" class="card notice" hidden>
+        <h2>First, set up your funds</h2>
+        <p>Open <strong>Settings</strong> at the bottom of the page, or use the setup link you were sent.</p>
+      </section>
+
+      <form id="inputs" novalidate>
+        <section class="card">
+          <h2><span class="step">1</span> Balances</h2>
+          <label>
+            Cash available to invest
+            <span class="hint">Uninvested cash sitting in the account today.</span>
+            <input id="cash" inputmode="decimal" autocomplete="off" placeholder="$0.00" required />
+          </label>
+          <label>
+            <span id="mm-label">Money market value</span>
+            <span class="hint">Current value of your cash buffer fund.</span>
+            <input id="mm" inputmode="decimal" autocomplete="off" placeholder="$0.00" required />
+          </label>
+        </section>
+
+        <section class="card">
+          <h2><span class="step">2</span> Holdings and quotes</h2>
+          <p class="hint">Read the bid and ask from each fund's quote screen, ideally between 10:00am and 3:30pm ET when spreads are tightest.</p>
+          <div id="funds"></div>
+          <p id="asof" class="hint" hidden></p>
+          <label id="confirm-wrap" class="check" hidden>
+            <input type="checkbox" id="confirm-shares" />
+            I checked these share counts against my account.
+          </label>
+        </section>
+
+        <p id="form-errors" class="error" role="alert"></p>
+        <button type="submit" class="primary big">Build my plan</button>
+      </form>
+
+      <section id="result" hidden aria-live="polite">
+        <div id="warnings"></div>
+
+        <section class="card">
+          <h2><span class="step">3</span> Your orders</h2>
+          <p class="hint">Place them in this order. Tick each one off as you go.</p>
+          <ol id="steps" class="steps"></ol>
+          <div class="row">
+            <button type="button" id="copy-main">Copy for log</button>
+            <button type="button" id="save-main">All filled: save share counts</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Allocation</h2>
+          <div id="chart-main"></div>
+        </section>
+
+        <section id="rebalance" class="card" hidden>
+          <h2>Drift is outside the band</h2>
+          <p id="drift-summary"></p>
+          <details>
+            <summary>Full rebalance with sells (optional)</summary>
+            <p class="warning">Selling in a taxable account realizes a gain or loss. Check each sale's unrealized gain in your account before you place it. Confirm your broker lets you spend sale proceeds the same day.</p>
+            <ol id="steps-rebalance" class="steps"></ol>
+            <div id="chart-rebalance"></div>
+            <div class="row">
+              <button type="button" id="copy-rebalance">Copy for log</button>
+              <button type="button" id="save-rebalance">All filled: save share counts</button>
+            </div>
+          </details>
+        </section>
+
+        <details class="card">
+          <summary>Show the math</summary>
+          <div id="math" class="math"></div>
+        </details>
+      </section>
+
+      <details id="settings" class="card">
+        <summary>Settings</summary>
+        <form id="settings-form" novalidate>
+          <label>
+            Money market fund name
+            <input id="s-mm-name" autocomplete="off" placeholder="Money market" />
+          </label>
+          <label>
+            Buffer target ($)
+            <span class="hint">How much to keep in the money market fund.</span>
+            <input id="s-buffer" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label>
+            Buffer deadband ($)
+            <span class="hint">Only sell buffer excess above target by more than this.</span>
+            <input id="s-deadband" inputmode="decimal" autocomplete="off" />
+          </label>
+          <label>
+            Money market same-day sell cutoff (ET, optional)
+            <input id="s-cutoff" type="time" />
+          </label>
+          <div class="row two">
+            <label>
+              Drift band (points)
+              <input id="s-band-points" inputmode="decimal" autocomplete="off" />
+            </label>
+            <label>
+              Drift band (% of target)
+              <input id="s-band-relative" inputmode="decimal" autocomplete="off" />
+            </label>
+          </div>
+          <h3>Funds and targets</h3>
+          <div id="s-funds"></div>
+          <button type="button" id="s-add-fund">Add fund</button>
+          <p id="settings-errors" class="error" role="alert"></p>
+          <div class="row">
+            <button type="submit" class="primary">Save settings</button>
+            <button type="button" id="s-share">Copy setup link</button>
+          </div>
+          <p class="hint">Settings and share counts are saved only on this device. Balances and quotes are never saved. The setup link carries settings only, after the <code>#</code>, which browsers do not send to the server.</p>
+          <button type="button" id="s-clear" class="danger">Erase everything saved on this device</button>
+        </form>
+      </details>
+
+      <p id="toast" class="toast" role="status" hidden></p>
+    </main>
+  </body>
+</html>
