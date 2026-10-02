@@ -123,7 +123,7 @@ function renderInputs() {
           'Shares held',
           el('input', {
             id: `shares-${f.ticker}`,
-            inputmode: 'numeric',
+            inputmode: 'decimal',
             autocomplete: 'off',
             placeholder: '0',
             value: prefilled ? String(holdings.shares[f.ticker] ?? '') : '',
@@ -154,7 +154,7 @@ function readInputs() {
     const shares = parseNumber($(`shares-${f.ticker}`).value);
     const bid = parseNumber($(`bid-${f.ticker}`).value);
     const ask = parseNumber($(`ask-${f.ticker}`).value);
-    if (!(Number.isInteger(shares) && shares >= 0)) errors.push(`${f.ticker}: shares must be a whole number.`);
+    if (!(Number.isFinite(shares) && shares >= 0)) errors.push(`${f.ticker}: enter the shares held (0 if none).`);
     if (!(bid > 0) || !(ask > 0)) errors.push(`${f.ticker}: enter both bid and ask.`);
     else if (ask < bid) errors.push(`${f.ticker}: the ask is lower than the bid. Check the quote.`);
     return { ticker: f.ticker, weight: f.target / 100, shares, bid: toCents(bid), ask: toCents(ask) };
@@ -332,7 +332,8 @@ async function copy(text) {
 function saveShares(input, sells, buys) {
   const shares = {};
   input.funds.forEach((f, i) => {
-    shares[f.ticker] = f.shares - (sells?.[i]?.shares ?? 0) + buys[i].shares;
+    // Fractional holdings pick up float error on each add; brokers report at most a few decimals.
+    shares[f.ticker] = Math.round((f.shares - (sells?.[i]?.shares ?? 0) + buys[i].shares) * 1e6) / 1e6;
   });
   save(HOLDINGS_KEY, { asOf: easternNow().date, shares });
   toast('Share counts saved for next month');

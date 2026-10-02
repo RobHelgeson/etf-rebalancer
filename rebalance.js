@@ -58,10 +58,11 @@ function buyOrders(funds, values, cash) {
 
 // funds: [{ ticker, weight (0-1), shares, bid, ask }] with prices in cents.
 // Holdings are valued at the bid: that is what they would actually sell for.
+// Shares held may be fractional, so their value is rounded back to whole cents.
 export function planMonth({ cash, mmValue, funds }, settings) {
   const buffer = reconcileBuffer(cash, mmValue, settings.buffer, settings.deadband);
   const deposit = buffer.deployable;
-  const values = funds.map((f) => f.shares * f.bid);
+  const values = funds.map((f) => Math.round(f.shares * f.bid));
   const total = sum(values) + deposit;
 
   const buys = buyOrders(funds, values, deposit);

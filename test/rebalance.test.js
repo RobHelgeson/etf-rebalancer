@@ -93,6 +93,20 @@ test('drift that buying cannot fix offers a full rebalance with sells', () => {
   assert.ok(plan.rebalance.remainder >= 0);
 });
 
+test('fractional holdings are valued in whole cents and still buy whole shares', () => {
+  const plan = planMonth(
+    {
+      cash: toCents(500),
+      mmValue: toCents(3000),
+      funds: [fund('AAA', 0.8, 10.123, 101.37, 101.4), fund('BBB', 0.2, 2.5, 50.01, 50.05)],
+    },
+    settings,
+  );
+  assert.ok(plan.values.every(Number.isInteger));
+  assert.ok(plan.buys.every((b) => Number.isInteger(b.shares)));
+  assert.ok(Number.isInteger(plan.remainder));
+});
+
 test('settings must name unique funds whose targets total 100%', () => {
   const ok = { buffer: 0, deadband: 0, funds: [{ ticker: 'AAA', target: 60 }, { ticker: 'BBB', target: 40 }] };
   assert.deepEqual(validateSettings(ok), []);
